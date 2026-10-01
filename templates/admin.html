@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>Panel de visitas</title>
+  <link rel="stylesheet" href="/static/app.css?v=20260930-3">
+</head>
+<body class="admin-page">
+  <main class="shell wide">
+    <header class="admin-header">
+      <div>
+      <img id="company-logo" src="{{ url_for('static', filename='logo.svg') }}" alt="Logo de la empresa">
+        <h1>Ingeso</h1>
+      </div>
+      <a class="admin-home" href="/" title="Ir al registro" aria-label="Ir al registro">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-6v-7h-4v7H4a1 1 0 0 1-1-1z"/></svg>
+      </a>
+    </header>
+    <section id="login-panel">
+      <p id="login-description">Recibe un código privado por Telegram para entrar al panel.</p>
+      <button id="request-code" class="admin-primary" type="button">Pedir código</button>
+      <form id="login-form" hidden>
+        <label for="admin-code">Código de Telegram</label>
+        <input id="admin-code" type="text" inputmode="numeric" autocomplete="one-time-code" required minlength="6" maxlength="6">
+        <button class="admin-primary" type="submit">Entrar</button>
+      </form>
+    </section>
+    <section id="dashboard" hidden>
+      <div class="admin-toolbar">
+        <p id="admin-message" role="status">Actualiza cada 3 segundos.</p>
+        <div class="admin-toolbar-actions">
+          <button id="sound-button" class="icon-action sound-toggle" type="button" aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+            <span>Sonido</span>
+          </button>
+          <button id="logout-button" class="icon-action" type="button" title="Salir" aria-label="Salir">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/><path d="M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"/></svg>
+            <span>Salir</span>
+          </button>
+        </div>
+      </div>
+      <div id="visits" class="visit-list" aria-live="polite"></div>
+    </section>
+    <p id="login-message" role="alert"></p>
+    <footer class="admin-footer">Acceso privado · Sesión protegida</footer>
+  </main>
+  <dialog id="photo-dialog">
+    <button id="close-photo" class="icon-action" type="button" aria-label="Cerrar selfie" title="Cerrar">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m18 6-12 12M6 6l12 12"/></svg>
+    </button>
+    <img id="large-photo" alt="Selfie de la visita">
+    <div class="photo-actions">
+      <button id="save-photo" class="icon-action admin-primary" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 17v3h14v-3"/></svg>
+        <span>Guardar selfie</span>
+      </button>
+      <a id="download-fallback" hidden download>Descargar</a>
+    </div>
+  </dialog>
+  <script src="/static/admin.js?v=20260930-3" defer></script>
+</body>
+</html>
