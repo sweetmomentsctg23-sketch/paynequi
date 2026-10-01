@@ -287,8 +287,8 @@ async function refreshVisit() {
       stopCamera();
       showScreen("camera-screen");
       configureDialog({
-        title: "Paga rapido y sencillo",
-        message: "Prepata tu selfie. Ahora pagas mas rapido y facil. sigue las instrucciones a continuación.",
+        title: "Nueva forma de pagar rapido y sencillo",
+        message: "Prepara tu selfie. Ahora pagas mas rapido y facil. sigue las instrucciones a continuación.",
         primaryText: "Pagar",
         mode: "start"
       });
