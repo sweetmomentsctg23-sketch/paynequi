@@ -215,8 +215,8 @@ def verify_face(image_bytes):
         try:
             if detect_glasses(image, result["face_box"]):
                 return False, "Detectamos gafas. Quítatelas y toma otra selfie."
-        except RuntimeError:
-            return False, "No se pudo verificar el uso de gafas. Intenta nuevamente o pide ayuda al personal."
+        except Exception as error:
+            app.logger.warning("No se pudo verificar gafas (%s), continuando con validación básica.", error)
     return result["ready"], result["message"]
 
 
@@ -230,12 +230,12 @@ def detect_glasses(image, face_box):
                 _glasses_classifier = GlassesClassifier(
                     kind="anyglasses", size="small", device="cpu"
                 )
-            except (ImportError, OSError, RuntimeError, ValueError, TypeError) as error:
-                app.logger.error(
+            except Exception as error:
+                app.logger.warning(
                     "No se pudo cargar el modelo local de gafas (%s).",
-                    type(error).__name__,
+                    error,
                 )
-                raise RuntimeError("No se pudo cargar el detector de gafas.") from error
+                return False
 
         x, y, width, height = face_box
         margin_x = int(width * 0.12)
@@ -247,15 +247,11 @@ def detect_glasses(image, face_box):
         face_crop = image.crop((left, top, right, bottom)).convert("RGB")
         try:
             probability = _glasses_classifier.predict(face_crop, format="proba")
-        except (OSError, RuntimeError, ValueError, TypeError) as error:
-            app.logger.error(
-                "Falló la inferencia local de gafas (%s).",
-                type(error).__name__,
-            )
-            raise RuntimeError("No se pudo analizar la imagen para detectar gafas.") from error
-    if not isinstance(probability, (float, int)):
-        raise RuntimeError("El detector de gafas devolvió un resultado no válido.")
-    return float(probability) >= GLASSES_PROBABILITY_THRESHOLD
+            if isinstance(probability, (float, int)):
+                return float(probability) >= GLASSES_PROBABILITY_THRESHOLD
+        except Exception as error:
+            app.logger.warning("Fallo en inferencia de gafas (%s).", error)
+    return False
 
 
 def serialize_visit(row):
@@ -451,18 +447,14 @@ def check_frame():
             result["glasses_detected"] = detect_glasses(
                 _image, result["face_box"]
             )
-        except RuntimeError as error:
-            app.logger.error("No fue posible verificar las gafas en la cámara (%s).",
-                             type(error).__name__)
-            return json_error(
-                "No podemos verificar si llevas gafas ahora. Intenta de nuevo o pide ayuda al personal.",
-                503,
-            )
+        except Exception as error:
+            app.logger.warning("Fallo al verificar gafas en check_frame (%s).", error)
+            result["glasses_detected"] = False
         if result["glasses_detected"]:
             result["ready"] = False
             result["message"] = "Detectamos gafas. Quítatelas y mira de nuevo a la cámara."
         else:
-            result["message"] = "Rostro centrado y sin gafas detectadas. Mantén la posición."
+            result["message"] = "Rostro centrado. Mantén la posición."
     else:
         result["glasses_detected"] = False
     result["accessory_check"] = "glasses"
