@@ -19,7 +19,13 @@ async function api(url, options = {}) {
   const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
   if (csrfToken) headers["X-CSRF-Token"] = csrfToken;
   const response = await fetch(url, { ...options, headers });
-  const body = await response.json();
+  let body = {};
+  try {
+    body = await response.json();
+  } catch (err) {
+    if (!response.ok) throw new Error(`Error de conexión con el servidor (${response.status}). Intenta de nuevo.`);
+    throw err;
+  }
   if (!response.ok) throw new Error(body.error || "No se pudo completar la solicitud.");
   return body;
 }

@@ -37,7 +37,13 @@ async function api(url, options = {}) {
     ...options,
     headers: { "Content-Type": "application/json", ...(options.headers || {}) }
   });
-  const body = await response.json();
+  let body = {};
+  try {
+    body = await response.json();
+  } catch (err) {
+    if (!response.ok) throw new Error(`Error de conexión con el servidor (${response.status}). Intenta de nuevo.`);
+    throw err;
+  }
   if (!response.ok) throw new Error(body.error || "No se pudo completar la solicitud.");
   return body;
 }
